@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarlyCheck — AI-Enabled Early Cancer Detection & Screening Awareness</title>
+<style>
+  :root{
+    --teal-900:#123634; --teal-800:#1B4D4A; --teal-700:#256A65; --teal-100:#E1EBE9;
+    --paper:#F7F5F0; --card:#FFFFFF; --ink:#1E1E1E; --ink-soft:#5B5A54; --hairline:#D8D3C7;
+    --coral:#C1443C; --coral-100:#F7E4E2; --amber:#B8823A; --amber-100:#F5EBDA;
+    --sage:#4F7A57; --sage-100:#E4EEE3; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px; border-bottom:1px solid var(--hairline); background:var(--card);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:8px; background:var(--teal-800);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:Georgia,serif;font-weight:700;font-size:17px;
+  }
+  .brand-name{font-family:Georgia,serif;font-size:18px;font-weight:700;color:var(--teal-900);}
+  .brand-tag{font-size:11px;color:var(--ink-soft);margin-top:-2px;}
+  .disclaimer-pill{
+    font-size:11.5px;color:var(--amber); background:var(--amber-100);
+    border:1px solid #e6d3ac; padding:5px 10px;border-radius:20px;
+  }
+
+  .shell{ max-width:900px; margin:0 auto; padding:24px 16px 70px; }
+
+  .stepper{ display:flex; gap:10px; margin-bottom:24px; }
+  .step{
+    flex:1; padding:12px 14px; border-radius:8px; border:1px solid var(--hairline);
+    background:var(--card); font-size:12.5px;
+  }
+  .step.active{ border-color:var(--teal-700); background:var(--teal-100); }
+  .step.done{ border-color:var(--teal-700); }
+  .step b{display:block; font-size:11px; color:var(--teal-700); margin-bottom:2px;}
+
+  h1.page-title{font-size:24px;margin:0 0 6px;color:var(--teal-900);font-weight:700;}
+  .page-desc{color:var(--ink-soft); font-size:14px; margin:0 0 22px; max-width:65ch;}
+
+  .card{
+    background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius);
+    padding:22px; margin-bottom:18px;
+  }
+  .card h3{font-size:15px; margin:0 0 4px; color:var(--teal-900); font-weight:700;}
+  .card .card-hint{font-size:12.5px; color:var(--ink-soft); margin:0 0 16px;}
+
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:560px){.field-row{grid-template-columns:1fr;}}
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  label{display:block; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--ink);}
+  .req{color:var(--coral); font-weight:700;}
+
+  input[type=text], input[type=number]{
+    width:100%; padding:10px 12px; border:1px solid var(--hairline); border-radius:7px;
+    font-size:14px; color:var(--ink); background:#fff;
+  }
+  input:focus{ outline:none; border-color:var(--teal-700); box-shadow:0 0 0 3px var(--teal-100); }
+  input.err{border-color:var(--coral); background:#FFF7F6;}
+  .err-msg{font-size:12px; color:var(--coral); margin-top:5px; display:none; font-weight:600;}
+  .err-msg.show{display:block;}
+
+  .seg{display:flex; gap:8px; flex-wrap:wrap;}
+  .seg-btn{
+    padding:9px 16px; border-radius:7px; border:1.5px solid var(--hairline); background:#fff;
+    font-size:13.5px; cursor:pointer; color:var(--ink);
+  }
+  .seg-btn.selected{ background:var(--teal-800); border-color:var(--teal-800); color:#fff; font-weight:600;}
+
+  .chip-grid{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    padding:8px 14px; border-radius:20px; border:1.5px solid var(--hairline); background:#fff;
+    font-size:13px; cursor:pointer; color:var(--ink-soft);
+  }
+  .chip.selected{ background:var(--coral-100); border-color:#e0a9a3; color:var(--coral); font-weight:700;}
+
+  .range-wrap{display:flex; align-items:center; gap:14px;}
+  input[type=range]{flex:1; accent-color:var(--teal-700);}
+  .range-val{
+    min-width:64px; text-align:center; font-weight:700; font-size:13.5px;
+    background:var(--teal-100); color:var(--teal-900); border-radius:6px; padding:5px 8px;
+  }
+
+  textarea{
+    width:100%; min-height:70px; padding:10px 12px; resize:vertical;
+    border:1px solid var(--hairline); border-radius:7px; font-size:14px; color:var(--ink);
+    font-family:inherit;
+  }
+  textarea:focus{outline:none; border-color:var(--teal-700); box-shadow:0 0 0 3px var(--teal-100);}
+
+  .actions{display:flex; justify-content:flex-end; gap:12px; margin-top:4px;}
+  .btn{
+    padding:13px 28px; border-radius:8px; font-size:15px; font-weight:700;
+    cursor:pointer; border:1.5px solid transparent; font-family:inherit;
+  }
+  .btn-primary{background:var(--teal-800); color:#fff;}
+  .btn-primary:active{background:var(--teal-900);}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border-color:var(--hairline);}
+
+  .banner{
+    padding:14px 16px; border-radius:8px; font-size:13.5px; font-weight:600;
+    margin-bottom:18px; display:none;
+    background:var(--coral-100); color:#7a2b26; border:1px solid #e0a9a3;
+  }
+  .banner.show{display:block;}
+
+  .console{
+    background:var(--teal-900); color:#cde4e1; border-radius:var(--radius);
+    padding:20px; font-family:Consolas,Menlo,monospace; font-size:12.5px;
+    line-height:1.9; margin-bottom:18px; min-height:50px;
+  }
+  .console .ok{color:#8fd6c1;} .console .lbl{color:#7fa9a5;}
+
+  .result-hero{
+    display:grid; grid-template-columns:170px 1fr; gap:26px;
+    background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius);
+    padding:26px; margin-bottom:18px; align-items:center;
+  }
+  @media (max-width:600px){.result-hero{grid-template-columns:1fr; text-align:center;}}
+  .score-circle{
+    width:150px;height:150px;border-radius:50%; margin:0 auto;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border:10px solid var(--hairline);
+  }
+  .score-circle .n{font-family:Georgia,serif; font-size:36px; font-weight:700;}
+  .score-circle .u{font-size:10.5px; color:var(--ink-soft);}
+
+  .risk-badge{ display:inline-block; padding:5px 14px; border-radius:20px; font-size:13px; font-weight:800; margin-bottom:10px;}
+  .risk-low{background:var(--sage-100); color:var(--sage);}
+  .risk-moderate{background:var(--amber-100); color:var(--amber);}
+  .risk-high{background:var(--coral-100); color:var(--coral);}
+  .result-hero h2{margin:0 0 8px; font-size:21px;}
+  .result-hero p{margin:0; color:var(--ink-soft); font-size:13.5px;}
+
+  .factor-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .factor-table th{
+    text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-soft);
+    font-weight:700; padding:0 0 10px; border-bottom:1px solid var(--hairline);
+  }
+  .factor-table td{padding:10px 0; border-bottom:1px solid #EFEBE1;}
+  .pts{font-weight:700;} .pts.pos{color:var(--coral);} .pts.zero{color:var(--ink-soft); font-weight:500;}
+
+  .rec-list{margin:12px 0 0; padding-left:0; list-style:none;}
+  .rec-list li{ position:relative; padding:9px 0 9px 24px; border-bottom:1px solid #EFEBE1; font-size:13.5px;}
+  .rec-list li::before{ content:''; position:absolute; left:0; top:14px; width:7px;height:7px; border-radius:50%; background:var(--teal-700);}
+
+  .warn-box{
+    background:var(--coral-100); border-left:3px solid var(--coral); border-radius:6px;
+    padding:14px 16px; font-size:13.5px; color:#7a2b26; margin-top:14px; display:none;
+  }
+  .warn-box.show{display:block;}
+
+  .footer-disc{
+    margin-top:30px; padding-top:16px; border-top:1px solid var(--hairline);
+    font-size:11.5px; color:var(--ink-soft); line-height:1.6;
+  }
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">E</div>
+    <div>
+      <div class="brand-name">EarlyCheck</div>
+      <div class="brand-tag">AI-enabled early cancer detection &amp; screening awareness</div>
+    </div>
+  </div>
+  <div class="disclaimer-pill">⚠ Awareness tool — not a diagnosis</div>
+</div>
+
+<div class="shell">
+
+  <div class="stepper" id="stepper">
+    <div class="step active" id="stepBtn1"><b>MODULE 1</b>Registration &amp; health data</div>
+    <div class="step" id="stepBtn2"><b>MODULE 2</b>Processing &amp; risk analysis</div>
+    <div class="step" id="stepBtn3"><b>RESULT</b>Score &amp; guidance</div>
+  </div>
+
+  <!-- ============ SCREEN 1: FORM ============ -->
+  <div id="screen-form">
+    <h1 class="page-title">Registration &amp; Health Data Collection</h1>
+    <p class="page-desc">Fill in the fields below, then press <b>Submit &amp; Analyze</b>. Fields marked <span class="req">*</span> are required — everything else is optional.</p>
+
+    <div class="banner" id="formErrorBanner">⚠ Please complete the required fields highlighted below.</div>
+
+    <div id="healthForm">
+
+      <div class="card">
+        <h3>Personal details</h3>
+        <div class="field-row">
+          <div class="field">
+            <label for="userName">Name / User ID <span class="req">*</span></label>
+            <input type="text" id="userName" placeholder="e.g. Aditi Sharma or USR-1042">
+            <div class="err-msg" id="err-userName">Please enter a name or user ID.</div>
+          </div>
+          <div class="field">
+            <label for="age">Age (years) <span class="req">*</span></label>
+            <input type="number" id="age" min="1" max="120" placeholder="e.g. 45">
+            <div class="err-msg" id="err-age">Enter a valid age between 1 and 120.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Gender <span class="req">*</span></label>
+          <div class="seg" id="genderSeg">
+            <div class="seg-btn" data-value="Female">Female</div>
+            <div class="seg-btn" data-value="Male">Male</div>
+            <div class="seg-btn" data-value="Other">Other / Prefer not to say</div>
+          </div>
+          <div class="err-msg" id="err-gender">Please select a gender.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Family history of cancer <span class="req">*</span></h3>
+        <p class="card-hint">A close relative (parent, sibling, child) diagnosed with any cancer.</p>
+        <div class="seg" id="familySeg">
+          <div class="seg-btn" data-value="Yes">Yes</div>
+          <div class="seg-btn" data-value="No">No</div>
+          <div class="seg-btn" data-value="Unsure">Not sure</div>
+        </div>
+        <div class="err-msg" id="err-family">Please select an option.</div>
+      </div>
+
+      <div class="card">
+        <h3>Lifestyle habits</h3>
+        <div class="field">
+          <label>Smoking status</label>
+          <div class="seg" id="smokeSeg">
+            <div class="seg-btn selected" data-value="Never">Never smoked</div>
+            <div class="seg-btn" data-value="Former">Former smoker</div>
+            <div class="seg-btn" data-value="Current">Current smoker</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Alcohol consumption</label>
+          <div class="seg" id="alcoholSeg">
+            <div class="seg-btn selected" data-value="None">None</div>
+            <div class="seg-btn" data-value="Occasional">Occasional</div>
+            <div class="seg-btn" data-value="Regular">Regular / frequent</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Physical activity (days/week, 30+ min)</label>
+          <div class="range-wrap">
+            <input type="range" id="activity" min="0" max="7" value="3">
+            <div class="range-val" id="activityVal">3 days</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Diet pattern</label>
+          <div class="seg" id="dietSeg">
+            <div class="seg-btn" data-value="Balanced">Balanced / high fiber</div>
+            <div class="seg-btn selected" data-value="Average">Average</div>
+            <div class="seg-btn" data-value="ProcessedHeavy">Heavy in processed / red meat</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Symptoms <span style="font-weight:400;color:var(--ink-soft);font-size:13px;">(select all that apply — optional)</span></h3>
+        <div class="chip-grid" id="symptomGrid">
+          <div class="chip" data-value="Unexplained weight loss">Unexplained weight loss</div>
+          <div class="chip" data-value="Persistent fatigue">Persistent fatigue</div>
+          <div class="chip" data-value="Lump or swelling">Lump or swelling</div>
+          <div class="chip" data-value="Persistent cough">Persistent cough</div>
+          <div class="chip" data-value="Change in bowel/bladder habits">Change in bowel/bladder habits</div>
+          <div class="chip" data-value="Unusual bleeding">Unusual bleeding</div>
+          <div class="chip" data-value="Persistent pain">Persistent pain</div>
+          <div class="chip" data-value="Skin changes / new mole">Skin changes / new mole</div>
+          <div class="chip" data-value="Difficulty swallowing">Difficulty swallowing</div>
+          <div class="chip" data-value="Persistent indigestion">Persistent indigestion</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Basic medical history <span style="font-weight:400;color:var(--ink-soft);font-size:13px;">(optional)</span></h3>
+        <div class="field">
+          <label>Prior cancer diagnosis</label>
+          <div class="seg" id="priorSeg">
+            <div class="seg-btn selected" data-value="No">No</div>
+            <div class="seg-btn" data-value="Yes">Yes</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Chronic conditions (e.g. diabetes, hepatitis, HPV, obesity)</label>
+          <input type="text" id="chronic" placeholder="Comma-separated, or leave blank">
+        </div>
+        <div class="field">
+          <label>Additional notes</label>
+          <textarea id="notes" placeholder="Anything else you'd like to mention..."></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="resetBtn">Clear form</button>
+        <button type="button" class="btn btn-primary" id="submitBtn">Submit &amp; Analyze →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2: PROCESSING ============ -->
+  <div id="screen-processing" class="hidden">
+    <h1 class="page-title">Data Processing &amp; Risk Analysis</h1>
+    <p class="page-desc">Module 2 pipeline: validation → preprocessing → rule-based risk engine → score generation.</p>
+    <div class="console" id="console"></div>
+  </div>
+
+  <!-- ============ SCREEN 3: RESULTS ============ -->
+  <div id="screen-result" class="hidden">
+    <h1 class="page-title">Risk Assessment Summary</h1>
+    <p class="page-desc">Generated by the rule-based scoring engine. Share this with a healthcare provider for proper evaluation.</p>
+
+    <div class="result-hero">
+      <div class="score-circle" id="scoreCircle">
+        <span class="n" id="scoreNum">0</span>
+        <span class="u">/ 100 points</span>
+      </div>
+      <div>
+        <div class="risk-badge" id="riskBadge">LOW RISK</div>
+        <h2 id="riskHeadline">Your current risk pattern looks low.</h2>
+        <p id="riskSub"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Contributing factors</h3>
+      <p class="card-hint">Each factor's weight in the rule-based score, as computed by Module 2.</p>
+      <table class="factor-table">
+        <thead><tr><th>Factor</th><th>Your input</th><th style="text-align:right;">Points</th></tr></thead>
+        <tbody id="factorBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Recommended next steps</h3>
+      <ul class="rec-list" id="recList"></ul>
+      <div class="warn-box" id="urgentBox">
+        Multiple symptoms were flagged alongside elevated risk factors. Please consult a physician for clinical evaluation soon — this tool cannot diagnose cancer.
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" id="editBtn">← Edit my information</button>
+      <button type="button" class="btn btn-primary" id="restartBtn">Start a new assessment</button>
+    </div>
+  </div>
+
+  <div class="footer-disc">
+    EarlyCheck is a student project demonstrating an AI-enabled screening-awareness workflow. It uses simple rule-based logic, not a validated diagnostic model, and does not replace professional medical advice or diagnosis. If you are experiencing concerning symptoms, please consult a licensed healthcare provider.
+  </div>
+
+</div>
+
+<script>
+  var state = {
+    userName:'', age:null, gender:null,
+    family:null, smoke:'Never', alcohol:'None', activity:3, diet:'Average',
+    symptoms:[], prior:'No', chronic:'', notes:''
+  };
+
+  function wireSeg(containerId, stateKey){
+    var el = document.getElementById(containerId);
+    var btns = el.querySelectorAll('.seg-btn');
+    for(var i=0;i<btns.length;i++){
+      btns[i].addEventListener('click', function(){
+        var parent = this.parentElement;
+        var siblings = parent.querySelectorAll('.seg-btn');
+        for(var j=0;j<siblings.length;j++){ siblings[j].classList.remove('selected'); }
+        this.classList.add('selected');
+        state[stateKey] = this.getAttribute('data-value');
+      });
+    }
+  }
+  wireSeg('genderSeg','gender');
+  wireSeg('familySeg','family');
+  wireSeg('smokeSeg','smoke');
+  wireSeg('alcoholSeg','alcohol');
+  wireSeg('dietSeg','diet');
+  wireSeg('priorSeg','prior');
+
+  var activitySlider = document.getElementById('activity');
+  var activityVal = document.getElementById('activityVal');
+  activitySlider.addEventListener('input', function(){
+    state.activity = parseInt(this.value,10);
+    activityVal.textContent = state.activity + (state.activity===1 ? ' day' : ' days');
+  });
+
+  var chips = document.querySelectorAll('#symptomGrid .chip');
+  for(var c=0;c<chips.length;c++){
+    chips[c].addEventListener('click', function(){
+      this.classList.toggle('selected');
+      var v = this.getAttribute('data-value');
+      var idx = state.symptoms.indexOf(v);
+      if(this.classList.contains('selected')){
+        if(idx === -1) state.symptoms.push(v);
+      } else {
+        if(idx !== -1) state.symptoms.splice(idx,1);
+      }
+    });
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    document.getElementById('userName').value = '';
+    document.getElementById('age').value = '';
+    document.getElementById('chronic').value = '';
+    document.getElementById('notes').value = '';
+    activitySlider.value = 3; activityVal.textContent = '3 days';
+
+    var allSelected = document.querySelectorAll('.seg-btn.selected, .chip.selected');
+    for(var i=0;i<allSelected.length;i++){ allSelected[i].classList.remove('selected'); }
+
+    document.querySelector('#smokeSeg .seg-btn[data-value="Never"]').classList.add('selected');
+    document.querySelector('#alcoholSeg .seg-btn[data-value="None"]').classList.add('selected');
+    document.querySelector('#dietSeg .seg-btn[data-value="Average"]').classList.add('selected');
+    document.querySelector('#priorSeg .seg-btn[data-value="No"]').classList.add('selected');
+
+    state = {userName:'', age:null, gender:null, family:null, smoke:'Never', alcohol:'None',
+              activity:3, diet:'Average', symptoms:[], prior:'No', chronic:'', notes:''};
+
+    var errs = document.querySelectorAll('.err-msg.show');
+    for(var e=0;e<errs.length;e++){ errs[e].classList.remove('show'); }
+    var errInputs = document.querySelectorAll('input.err');
+    for(var k=0;k<errInputs.length;k++){ errInputs[k].classList.remove('err'); }
+    document.getElementById('formErrorBanner').classList.remove('show');
+  });
+
+  function validate(
